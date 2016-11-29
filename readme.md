@@ -26,6 +26,6 @@ _NOTE: The makefile uses `avr-gcc` and `avrdude` to compile and upload. It also 
 * [ATtiny84 Datasheet](http://www.atmel.com/Images/doc8006.pdf)
 * [Arduino C Code on Github](https://github.com/arduino/Arduino/tree/master/hardware/arduino/avr/cores/arduino)
 
-### Pin Layouts
+### Pin Layout
 
 ![ATtiny84 Pin Layout](assets/attiny44_84-pinout.png)
