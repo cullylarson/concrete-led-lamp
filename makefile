@@ -1,4 +1,4 @@
-GCC_DEVICE  = attiny84a # not sure why it needs to be the 'a', but the interrupts I'm using aren't defined for the normal 'attiny84' device
+GCC_DEVICE  = attiny84
 DUDE_DEVICE = m328p
 CLOCK       = 8000000            # 8Mhz (just used for code that needs to know about the CPU)
 PROGRAMMER  = -c usbtiny -P usb  # For using Sparkfun Pocket AVR Programmer

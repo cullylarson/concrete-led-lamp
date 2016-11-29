@@ -73,40 +73,30 @@ ISR(ADC_vect) {
 
 // timers that control PWM for the LEDs
 // 
-// timer 1 will count the full cycle of our pulse. timer 0 counts divisions
-// of that cycle and switches each chanel (red, green, blue) on/off, depending
-// on the duty cycle.
+// timer 1, register A will count the full cycle of our pulse. timer 1, register B
+// counts divisions of that cycle and switches each chanel (red, green, blue) on/off,
+// depending on the duty cycle.
 //
-// each color is stored as a 3-bit value, which gives 8 diff value. so, the
-// division timer (timer 0), needs to bit 1/8 of the full cycle.
+// each color is stored as a 3-bit value, which gives 8 diff value. so, the division
+// timer (timer 1, register B), needs to be 1/8 of the full cycle.
 void setupLedPwm() {
     // Timer/Counter 1 -- used to count the full cycle of the pulse
 
-    // CTC (Clear Timer on Compare)
+    // CTC (Clear Timer on Compare). This will clear when the counter matches OCR1A (not OCR1B)
     TCCR1B |= (1 << WGM12);
 
-    // Prescale 8 (needs to be the same prescaler as timer 0)
+    // Prescale 8
     TCCR1B |= (1 << CS11); // TODO -- tweak this (would tweak in order to get a precise voltage range, for the LED driver)
 
     // count 11 bits
     OCR1A = 0b11111111111;
+    // counts 8 bits (which is 1/8 of the full cycle; it always needs to be 1/8 of the full cycle)
+    OCR1B = 0xff;
 
     // enable compare A match interrupt
     TIMSK1 |= (1 << OCIE1A);
-
-    // Timer/Counter 0 -- used to count divisions of the full cycle
-
-    // CTC (Clear Timer on Compare)
-    TCCR0B |= (1 << WGM01);
-
-    // Prescale 8 (needs to be the same prescaler as timer 1)
-    TCCR0B |= (1 << CS01);
-
-    // counts 8 bits (which is 1/8 of the full cycle)
-    OCR0A = 0xff;
-
-    // enable compare A match interrupt
-    TIMSK0 |= (1 << OCIE0A);
+    // enable compare B match interrupt
+    TIMSK1 |= (1 << OCIE1B);
 }
 
 /**
@@ -129,12 +119,12 @@ uint8_t isPulseOn(uint8_t displayColorValue, uint16_t counterValue) {
 }
 
 // triggered at the beginning of a new cycle
-ISR(TIM1_COMPA) {
-    // don't need to do anything, since duty cycle is handled in the timer 0 interrupt
+ISR(TIM1_COMPA_vect) {
+    // don't need to do anything, since duty cycle is handled in the timer compare register B interrupt
 }
 
 // triggered at the beginning of each division of the cycle
-ISR(TIM0_COMPA) {
+ISR(TIM1_COMPB_vect) {
     // the count of timer 1 (the full cycle counter) is in TCNT1
 
     if(isPulseOn(_red, TCNT1)) GOHI(LED_R_PORT, LED_R);
