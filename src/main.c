@@ -74,7 +74,7 @@ ISR(ADC_vect) {
 // timers that control PWM for the LEDs
 //
 // timer 1, register A will count the full cycle of our pulse. timer 1, register B
-// counts divisions of that cycle and switches each chanel (red, green, blue) on/off,
+// counts divisions of that cycle and switches each channel (red, green, blue) on/off,
 // depending on the duty cycle.
 //
 // each color is stored as a 3-bit value, which gives 8 diff value. so, the division
