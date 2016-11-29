@@ -72,7 +72,7 @@ ISR(ADC_vect) {
 }
 
 // timers that control PWM for the LEDs
-// 
+//
 // timer 1, register A will count the full cycle of our pulse. timer 1, register B
 // counts divisions of that cycle and switches each chanel (red, green, blue) on/off,
 // depending on the duty cycle.
@@ -100,9 +100,12 @@ void setupLedPwm() {
 }
 
 /**
+ * Basically just divides the first 11 bits of the counter into 8 divisions. The displayColorValue
+ * indicates how many of those divisions it's on for.
+ *
  * @param displayColorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue)
  * @param colorCounterValue uint8_t How far we've counted (assumes a maximum count of 11 bits)
- * @return uint8_t 1 if pulse is on, 0 if off.  determines this
+ * @return uint8_t 1 if pulse is on, 0 if off.
  */
 uint8_t isPulseOn(uint8_t displayColorValue, uint16_t counterValue) {
     // a value of zero takes up 0 - 255 on the counter
