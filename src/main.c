@@ -77,7 +77,7 @@ ISR(ADC_vect) {
 // counts divisions of that cycle and switches each channel (red, green, blue) on/off,
 // depending on the duty cycle.
 //
-// each color is stored as a 3-bit value, which gives 8 diff value. so, the division
+// each color is stored as a 3-bit value, which gives 8 different values. so, the division
 // timer (timer 1, register B), needs to be 1/8 of the full cycle.
 void setupLedPwm() {
     // Timer/Counter 1 -- used to count the full cycle of the pulse
