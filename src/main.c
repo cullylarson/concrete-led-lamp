@@ -118,30 +118,30 @@ void setupLedPwm() {
 }
 
 /**
- * Basically just divides the first 11 bits of the counter into 8 divisions. The displayColorValue
+ * Basically just divides the first 11 bits of the counter into 8 divisions. The colorValue
  * indicates how many of those divisions it's on for.
  * 
  * Need to only output voltages between 0 and 2.5V (that's what the PicoBuck takes), so will need
  * to always leave the last half of the cycle low, and do our duty cycle within the first half. This
  * means that all counter values are dividied by 2
  *
- * @param displayColorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue)
+ * @param colorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue)
  * @param colorCounterValue uint8_t How far we've counted (assumes a maximum count of 11 bits)
  * @return uint8_t 1 if pulse is on, 0 if off.
  */
-uint8_t isPulseOn(uint8_t displayColorValue, uint16_t counterValue) {
+uint8_t isPulseOn(uint8_t colorValue, uint16_t counterValue) {
     // the last half of the cycle will always be low
     if(counterValue >= 1024) return 0;
 
     // a value of zero takes up 0 - 127 (256 / 2 - 1) on the counter
-    if(displayColorValue == 0) return 0;
-    else if(displayColorValue == 1 && counterValue < 256) return 1; // 512 / 2 = 256
-    else if(displayColorValue == 2 && counterValue < 384) return 1; // 768 / 2 = 384
-    else if(displayColorValue == 3 && counterValue < 512) return 1; // 1024 / 2 = 512
-    else if(displayColorValue == 4 && counterValue < 640) return 1; // 1280 / 2 = 640
-    else if(displayColorValue == 5 && counterValue < 768) return 1; // 1536 / 2 = 768
-    else if(displayColorValue == 6 && counterValue < 896) return 1; // 1792 / 2 = 896
-    else if(displayColorValue == 7) return 1;
+    if(colorValue == 0) return 0;
+    else if(colorValue == 1 && counterValue < 256) return 1; // 512 / 2 = 256
+    else if(colorValue == 2 && counterValue < 384) return 1; // 768 / 2 = 384
+    else if(colorValue == 3 && counterValue < 512) return 1; // 1024 / 2 = 512
+    else if(colorValue == 4 && counterValue < 640) return 1; // 1280 / 2 = 640
+    else if(colorValue == 5 && counterValue < 768) return 1; // 1536 / 2 = 768
+    else if(colorValue == 6 && counterValue < 896) return 1; // 1792 / 2 = 896
+    else if(colorValue == 7) return 1;
 
     return 0;
 }
