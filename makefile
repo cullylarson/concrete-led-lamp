@@ -1,5 +1,5 @@
 GCC_DEVICE  = attiny84
-DUDE_DEVICE = m328p
+DUDE_DEVICE = t84
 CLOCK       = 8000000            # 8Mhz (just used for code that needs to know about the CPU)
 PROGRAMMER  = -c usbtiny -P usb  # For using Sparkfun Pocket AVR Programmer
 FUSES       = -U lfuse:w:0xe2:m -U hfuse:w:0xde:m -U efuse:w:0xff:m # CKDIV8 is off

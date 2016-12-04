@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h> // stub
 #include "pins.h"
 
 // TODO -- could just use one timer, and use its second comparator (e.g. OCR1B)
@@ -45,10 +46,12 @@ void setup() {
 }
 
 void setupAdc() {
+    // NOTE: Don't need to set the ADC pin as an input pin, though it doesn't change anything if you do
+
     // Vcc used as analog reference
     ADMUX &= ~((1 << REFS1) | (1 << REFS0));
     // Read from ADC3 (pin 10)
-    ADMUX |= (1 << MUX1) | (1 << MUX2);
+    ADMUX |= (1 << MUX1) | (1 << MUX0);
 
     // the adc needs to run sample at 50 - 200 kHz. Assuming the clock speed is 8MHz, will
     // need to scale down by 40. Closest, without sampling faster than 200 MHz is 64
@@ -67,18 +70,24 @@ void startAdcConversion() {
 
 // triggered when ADC is done
 ISR(ADC_vect) {
-    _dialValue = (ADCH << 8) | ADCL; // ADCH will have the left-most 2 bits, ADCL will have the right-most 8 bits (i.e. you get a 10-bit value)
+    uint8_t low = ADCL; // need to read ADCL first (according to the datasheet)
+    _dialValue = (ADCH << 8) | low; // ADCH will have the left-most 2 bits, ADCL will have the right-most 8 bits (i.e. you get a 10-bit value)
     onDialUpdate();
 }
 
 // timers that control PWM for the LEDs
 //
-// timer 1, register A will count the full cycle of our pulse. timer 1, register B
-// counts divisions of that cycle and switches each channel (red, green, blue) on/off,
-// depending on the duty cycle.
+// timer 1, register A will count the full cycle of our pulse.
+// 
+// timer 0, register A counts divisions of that cycle and switches
+// each channel (red, green, blue) on/off, depending on the duty cycle.
 //
 // each color is stored as a 3-bit value, which gives 8 different values. so, the division
-// timer (timer 1, register B), needs to be 1/8 of the full cycle.
+// timer (timer 0, register A), needs to be 1/8 of the full cycle.
+//
+// NOTE: I tried doing this using OCR1A and OCR1B on timer 1, but for some reason, the COMPB
+// event always fired at the same time as COMPA; not matter what the alues of OACR1A and OCR1B.
+// So, just using both timers.
 void setupLedPwm() {
     // Timer/Counter 1 -- used to count the full cycle of the pulse
 
@@ -88,34 +97,50 @@ void setupLedPwm() {
     // Prescale 8
     TCCR1B |= (1 << CS11); // TODO -- tweak this (would tweak in order to get a precise voltage range, for the LED driver)
 
-    // count 11 bits
-    OCR1A = 0b11111111111;
-    // counts 8 bits (which is 1/8 of the full cycle; it always needs to be 1/8 of the full cycle)
-    OCR1B = 0xff;
+    OCR1A = 2047;
 
     // enable compare A match interrupt
     TIMSK1 |= (1 << OCIE1A);
-    // enable compare B match interrupt
-    TIMSK1 |= (1 << OCIE1B);
+
+    // Timer/Counter 0 -- used to count divisions of the full cycle
+
+    // CTC (Clear Timer on Compare). This will clear when the counter matches OCR1A (not OCR1B)
+    TCCR0B |= (1 << WGM01);
+
+    // Prescale 8
+    TCCR0B |= (1 << CS01); // TODO -- tweak this (would tweak in order to get a precise voltage range, for the LED driver)
+
+    // counts 1/8 of the full cycle (it always needs to be 1/8 of the full cycle)
+    OCR0A = 255;
+
+    // enable compare A match interrupt
+    TIMSK0 |= (1 << OCIE0A);
 }
 
 /**
  * Basically just divides the first 11 bits of the counter into 8 divisions. The displayColorValue
  * indicates how many of those divisions it's on for.
+ * 
+ * Need to only output voltages between 0 and 2.5V (that's what the PicoBuck takes), so will need
+ * to always leave the last half of the cycle low, and do our duty cycle within the first half. This
+ * means that all counter values are dividied by 2
  *
  * @param displayColorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue)
  * @param colorCounterValue uint8_t How far we've counted (assumes a maximum count of 11 bits)
  * @return uint8_t 1 if pulse is on, 0 if off.
  */
 uint8_t isPulseOn(uint8_t displayColorValue, uint16_t counterValue) {
-    // a value of zero takes up 0 - 255 on the counter
+    // the last half of the cycle will always be low
+    if(counterValue >= 1024) return 0;
+
+    // a value of zero takes up 0 - 127 (256 / 2 - 1) on the counter
     if(displayColorValue == 0) return 0;
-    else if(displayColorValue == 1 && counterValue < 512) return 1;
-    else if(displayColorValue == 2 && counterValue < 768) return 1;
-    else if(displayColorValue == 3 && counterValue < 1024) return 1;
-    else if(displayColorValue == 4 && counterValue < 1280) return 1;
-    else if(displayColorValue == 5 && counterValue < 1536) return 1;
-    else if(displayColorValue == 6 && counterValue < 1792) return 1;
+    else if(displayColorValue == 1 && counterValue < 256) return 1; // 512 / 2 = 256
+    else if(displayColorValue == 2 && counterValue < 384) return 1; // 768 / 2 = 384
+    else if(displayColorValue == 3 && counterValue < 512) return 1; // 1024 / 2 = 512
+    else if(displayColorValue == 4 && counterValue < 640) return 1; // 1280 / 2 = 640
+    else if(displayColorValue == 5 && counterValue < 768) return 1; // 1536 / 2 = 768
+    else if(displayColorValue == 6 && counterValue < 896) return 1; // 1792 / 2 = 896
     else if(displayColorValue == 7) return 1;
 
     return 0;
@@ -127,15 +152,18 @@ ISR(TIM1_COMPA_vect) {
 }
 
 // triggered at the beginning of each division of the cycle
-ISR(TIM1_COMPB_vect) {
+ISR(TIM0_COMPA_vect) {
     // the count of timer 1 (the full cycle counter) is in TCNT1
+    uint16_t counter = TCNT1; // store it, so that it's the same for all of the function calls below
 
-    if(isPulseOn(_red, TCNT1)) GOHI(LED_R_PORT, LED_R);
+    // TODO -- how long does each of these calls take? if too long, then the blue step won't get its correct duty
+
+    if(isPulseOn(_red, counter)) GOHI(LED_R_PORT, LED_R);
     else GOLO(LED_R_PORT, LED_R);
 
-    if(isPulseOn(_green, TCNT1)) GOHI(LED_G_PORT, LED_G);
+    if(isPulseOn(_green, counter)) GOHI(LED_G_PORT, LED_G);
     else GOLO(LED_G_PORT, LED_G);
 
-    if(isPulseOn(_blue, TCNT1)) GOHI(LED_B_PORT, LED_B);
+    if(isPulseOn(_blue, counter)) GOHI(LED_B_PORT, LED_B);
     else GOLO(LED_B_PORT, LED_B);
 }
