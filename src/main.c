@@ -2,18 +2,19 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h> // stub
 #include "pins.h"
 
-// TODO -- could just use one timer, and use its second comparator (e.g. OCR1B)
-
-// this will be a 10-bit value. since we need to divide those bits among three colors, we'll
-// just ignore the least significant bit. this means the color will essentially change "every
-// other bit", which should even be noticable. this gives us 3 bits per color.
 volatile uint16_t _dialValue = 0;
 volatile uint8_t _red = 0;
 volatile uint8_t _green = 0;
 volatile uint8_t _blue = 0;
+
+// These are the RGB values of each "step" in the color transition (50 steps total).
+// I just hard-coded them since it's easier than doing an algorithm, and this is a pretty smooth color transition
+// TODO -- might want to store these in PROGMEM?
+const uint8_t reds[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
+const uint8_t blues[]  = {0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7};
 
 void setup();
 void setupAdc();
@@ -30,9 +31,12 @@ int main(void) {
 }
 
 void onDialUpdate() {
-    _red   = (_dialValue & 0b0000000000001110) >> 1; // red is bits 1-3
-    _green = (_dialValue & 0b0000000001110000) >> 4; // green is bits 4-6
-    _blue  = (_dialValue & 0b0000001110000000) >> 7; // blue is bits 7-9
+    // we should have 10 bits for the dial value (0 - 1023), and we need to get a number between 0 and 49
+    uint8_t stepNumber = (49 * _dialValue) / 1023;
+
+    _red   = reds[stepNumber];
+    _green = greens[stepNumber];
+    _blue  = blues[stepNumber];
 }
 
 void setup() {
@@ -78,7 +82,7 @@ ISR(ADC_vect) {
 // timers that control PWM for the LEDs
 //
 // timer 1, register A will count the full cycle of our pulse.
-// 
+//
 // timer 0, register A counts divisions of that cycle and switches
 // each channel (red, green, blue) on/off, depending on the duty cycle.
 //
@@ -120,7 +124,7 @@ void setupLedPwm() {
 /**
  * Basically just divides the first 11 bits of the counter into 8 divisions. The colorValue
  * indicates how many of those divisions it's on for.
- * 
+ *
  * Need to only output voltages between 0 and 2.5V (that's what the PicoBuck takes), so will need
  * to always leave the last half of the cycle low, and do our duty cycle within the first half. This
  * means that all counter values are dividied by 2

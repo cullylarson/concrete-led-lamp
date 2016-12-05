@@ -1,0 +1,117 @@
+<html>
+
+    <head>
+        <style>
+            #chart {
+                font-family: monospace;
+            }
+
+            .cube {
+                width: 10px;
+                height: 10px;
+                padding: 3px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <table id='chart'>
+        </table>
+
+    </body>
+
+    <script>
+        const chartEl = document.querySelector('#chart')
+
+        let rVal
+        let gVal
+        let bVal
+
+        let bAdd
+        let gAdd
+
+        let rs = []
+        let gs = []
+        let bs = []
+
+        for(let i = 0; i <= 56; i++) {
+            if(i === 0) {
+                rVal = 0
+                gVal = 0
+                bVal = 0
+            }
+            else {
+                if(i % 16 > 7) bVal = 7 - i % 8
+                else bVal = i % 8
+
+                if(i % 32 < 8) gVal = 0
+                else if(i % 32 >= 8 && i % 32 < 16) gVal = i % 8
+                else if(i % 32 >= 16 && i % 32 < 24) gVal = 7
+                else gVal = 7 - i % 8
+
+                if(i > 24 && i < 32) rVal = i % 8
+                else if( i >= 32 ) rVal = 7
+            }
+
+            rs.push(rVal)
+            gs.push(gVal)
+            bs.push(bVal)
+
+            addRow(chartEl, leftPad(i, '0', 3) + ' | ' + dec2bin(i, 9) + ' | ', rVal, gVal, bVal)
+
+                /*
+            const bI = ((i & 0b000000111) >> 1);
+            const gI = ((i & 0b000111000) >> 3);
+            const rI = ((i & 0b111000000) >> 6);
+
+            if(bVal === 0) bAdd = 1
+            if(bVal === 7) bAdd = -1
+            bVal += bAdd
+
+                 if(gAdd === 0 && i % 16 === 7) gAdd = 1
+            else if(gAdd === 0 && i % 16 === 15) gAdd = -1
+            else if(gAdd === 1 && i % 16 === 7) gAdd = 0
+            else if(gAdd === -1 && i % 16 === 15) gAdd = 0
+                console.log(gAdd)
+            gVal += gAdd
+            */
+        }
+
+console.log(rs)
+console.log(gs)
+console.log(bs)
+
+        function leftPad(toPad, padWith, l) {
+            toPad = '' + toPad
+            while(toPad.length < l) toPad = '' + padWith + toPad
+
+            return toPad
+        }
+
+        function dec2bin(dec, l=null){
+            const str = (dec >>> 0).toString(2)
+            return l
+                ? leftPad(str, '0', l)
+                : str
+        }
+
+        function addRow(tableEl, i, r, g, b) {
+            const colorValue = `rgb(${r*32}, ${g*32}, ${b*32})`
+            const tr = document.createElement('tr')
+
+            const valTd = document.createElement('td')
+            valTd.innerHTML = i + dec2bin(r, 3) + ' ' + dec2bin(g, 3) + ' ' + dec2bin(b, 3)
+
+            const cube = document.createElement('div')
+            cube.style.backgroundColor = colorValue
+            cube.classList.add('cube')
+            const cubeTd = document.createElement('td')
+            cubeTd.appendChild(cube)
+
+            tr.appendChild(valTd)
+            tr.appendChild(cubeTd)
+            tableEl.appendChild(tr)
+        }
+    </script>
+</html>
