@@ -1,0 +1,39 @@
+<html>
+
+    <head>
+        <style>
+            #cube {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div id='cube'></table>
+
+    </body>
+
+    <script>
+        const reds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+        const greens = [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7]
+        const blues = [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7]
+
+        const cubeEl = document.querySelector('#cube')
+
+        nextStep(0)
+
+        function nextStep(i) {
+            cubeEl.style.backgroundColor = `rgb(${reds[i] * 32}, ${greens[i] * 32}, ${blues[i] * 32})`
+
+            setTimeout(() => {
+                i === reds.length
+                    ? nextStep(0)
+                    : nextStep(i+1)
+            }, 100)
+        }
+
+    </script>
+</html>
