@@ -18,6 +18,8 @@
 //
 // Each transition takes 8 steps, which gives us 56 steps, but since each transition also shares a step with the
 // one before, I removed the duplicates (6 duplicates gives a total of 50 steps)
+//
+// TODO -- maybe put the duplicate steps back in so that we stay longer on those main colors
 const uint8_t reds[]   = {0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
 const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
 const uint8_t blues[]  = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7};
@@ -134,8 +136,8 @@ void setupLedPwm() {
 }
 
 /**
- * Basically just divides the the counter into 8 divisions. The colorValue  indicates how many of
- those divisions it's on for.
+ * Basically just divides the counter into 8 divisions. The colorValue indicates how many of
+ * those divisions it's on for.
  *
  * Need to only output voltages between 0 and 2.5V (that's what the PicoBuck takes), so will need
  * to always leave the last half of the cycle low, and do our duty cycle within the first half. This
