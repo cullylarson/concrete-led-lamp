@@ -24,7 +24,6 @@ const uint8_t blues[]  = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 
 
 #define MAX_COLOR_IDX sizeof(reds) - 1
 
-volatile uint16_t _dialValue = 0;
 volatile uint8_t _red = 0;
 volatile uint8_t _green = 0;
 volatile uint8_t _blue = 0;
@@ -43,9 +42,9 @@ int main(void) {
     }
 }
 
-void onDialUpdate() {
+void onDialUpdate(uint16_t dialValue) {
     // we should have 10 bits for the dial value (0 - 1023), and we need to get a number between 0 and MAX_COLOR_IDX
-    uint8_t stepNumber = (MAX_COLOR_IDX * _dialValue) / 1023;
+    uint8_t stepNumber = (MAX_COLOR_IDX * dialValue) / 1023;
 
     _red   = reds[stepNumber];
     _green = greens[stepNumber];
@@ -88,8 +87,8 @@ void startAdcConversion() {
 // triggered when ADC is done
 ISR(ADC_vect) {
     uint8_t low = ADCL; // need to read ADCL first (according to the datasheet)
-    _dialValue = (ADCH << 8) | low; // ADCH will have the left-most 2 bits, ADCL will have the right-most 8 bits (i.e. you get a 10-bit value)
-    onDialUpdate();
+    uint16_t dialValue = (ADCH << 8) | low; // ADCH will have the left-most 2 bits, ADCL will have the right-most 8 bits (i.e. you get a 10-bit value)
+    onDialUpdate(dialValue);
 }
 
 // timers that control PWM for the LEDs
@@ -165,7 +164,7 @@ uint8_t isPulseOn(uint8_t colorValue, uint16_t counterValue) {
 
 // triggered at the beginning of a new cycle
 ISR(TIM1_COMPA_vect) {
-    // don't need to do anything, since duty cycle is handled in the timer compare register B interrupt
+    // don't need to do anything, since duty cycle is handled in the timer 0 interrupt
 }
 
 // triggered at the beginning of each division of the cycle
@@ -174,6 +173,8 @@ ISR(TIM0_COMPA_vect) {
     uint16_t counter = TCNT1; // store it, so that it's the same for all of the function calls below
 
     // TODO -- how long does each of these calls take? if too long, then the blue step won't get its correct duty
+    // I think we're good since the delay is at least consistent (i.e. we delayed turning on, and we'll also delay
+    // turning off)
 
     if(isPulseOn(_red, counter)) GOHI(LED_R_PORT, LED_R);
     else GOLO(LED_R_PORT, LED_R);
