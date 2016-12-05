@@ -11,6 +11,19 @@ volatile uint8_t _blue = 0;
 
 // These are the RGB values of each "step" in the color transition (50 steps total).
 // I just hard-coded them since it's easier than doing an algorithm, and this is a pretty smooth color transition
+//
+// The transitions are:
+// o  black -> blue
+// o  blue -> green
+// o  green -> teal
+// o  teal -> red
+// o  red -> magenta
+// o  magenta -> yellow
+// o  yellow -> white
+//
+// Each transition takes 8 steps, which gives us 56 steps, but since each transition also shares a step with the
+// one before, I removed the duplicates (6 duplicates gives a total of 50 steps)
+//
 // TODO -- might want to store these in PROGMEM?
 const uint8_t reds[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
 const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
