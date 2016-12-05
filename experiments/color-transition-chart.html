@@ -40,9 +40,9 @@
         outputColorsForCode(colors2)
 
         function outputColorsForCode(colors) {
-            const r = '\n\n{' + colors.map(x => x.r).join(', ') + '}'
-            const g = '\n\n{' + colors.map(x => x.g).join(', ') + '}'
-            const b = '\n\n{' + colors.map(x => x.b).join(', ') + '}'
+            const r = '\n\nconst uint8_t reds[] = {' + colors.map(x => x.r).join(', ') + '};'
+            const g = '\n\nconst uint8_t greens[] = {' + colors.map(x => x.g).join(', ') + '};'
+            const b = '\n\nconst uint8_t blues[] = {' + colors.map(x => x.b).join(', ') + '};'
 
             console.log(r)
             console.log(g)
