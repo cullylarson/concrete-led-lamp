@@ -33,22 +33,35 @@
         const white = Color(7, 7, 7)
 
         const chart1 = addChart(document.querySelector('body'), 'one')
-        transition(black, blue, chartCb(chart1))
-        transition(blue, green, chartCb(chart1))
-        transition(green, teal, chartCb(chart1))
-        transition(teal, red, chartCb(chart1))
-        transition(red, magenta, chartCb(chart1))
-        transition(magenta, yellow, chartCb(chart1))
-        transition(yellow, white, chartCb(chart1))
+        const colors1 = processTransitions([black, blue, green, teal, red, magenta, yellow, white], chartCb(chart1))
 
         const chart2 = addChart(document.querySelector('body'), 'two')
-        transition(black, red, chartCb(chart2))
-        transition(red, magenta, chartCb(chart2))
-        transition(magenta, blue, chartCb(chart2))
-        transition(blue, teal, chartCb(chart2))
-        transition(teal, green, chartCb(chart2))
-        transition(green, yellow, chartCb(chart2))
-        transition(yellow, white, chartCb(chart2))
+        const colors2 = processTransitions([black, red, magenta, blue, teal, green, yellow, white], chartCb(chart2))
+        outputColorsForCode(colors2)
+
+        function outputColorsForCode(colors) {
+            const r = '\n\n{' + colors.map(x => x.r).join(', ') + '}'
+            const g = '\n\n{' + colors.map(x => x.g).join(', ') + '}'
+            const b = '\n\n{' + colors.map(x => x.b).join(', ') + '}'
+
+            console.log(r)
+            console.log(g)
+            console.log(b)
+        }
+
+        function processTransitions(colors, transitionCb) {
+            let allColors = []
+            const gatherColorsCbWrapper = color => {
+                allColors.push(color)
+                transitionCb(color)
+            }
+
+            for(let i = 0; i < colors.length - 1; i++) {
+                transition(colors[i], colors[i+1], gatherColorsCbWrapper)
+            }
+
+            return allColors
+        }
 
         function Color(r, g, b) {
             return {r, g, b}
