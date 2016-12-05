@@ -134,15 +134,15 @@ void setupLedPwm() {
 }
 
 /**
- * Basically just divides the first 11 bits of the counter into 8 divisions. The colorValue
- * indicates how many of those divisions it's on for.
+ * Basically just divides the the counter into 8 divisions. The colorValue  indicates how many of
+ those divisions it's on for.
  *
  * Need to only output voltages between 0 and 2.5V (that's what the PicoBuck takes), so will need
  * to always leave the last half of the cycle low, and do our duty cycle within the first half. This
  * means that all counter values are dividied by 2
  *
- * @param colorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue)
- * @param colorCounterValue uint8_t How far we've counted (assumes a maximum count of 11 bits)
+ * @param colorValue uint8_t The value of the color to be displayed (e.g. _red, _greeen, _blue). Should be a number between 0 and 7
+ * @param colorCounterValue uint8_t How far we've counted (assumes a maximum count of 2047)
  * @return uint8_t 1 if pulse is on, 0 if off.
  */
 uint8_t isPulseOn(uint8_t colorValue, uint16_t counterValue) {
