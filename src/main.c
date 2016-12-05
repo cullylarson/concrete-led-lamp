@@ -4,30 +4,30 @@
 #include <avr/interrupt.h>
 #include "pins.h"
 
-volatile uint16_t _dialValue = 0;
-volatile uint8_t _red = 0;
-volatile uint8_t _green = 0;
-volatile uint8_t _blue = 0;
-
 // These are the RGB values of each "step" in the color transition (50 steps total).
 // I just hard-coded them since it's easier than doing an algorithm, and this is a pretty smooth color transition
 //
 // The transitions are:
-// o  black -> blue
-// o  blue -> green
-// o  green -> teal
-// o  teal -> red
+// o  black -> red
 // o  red -> magenta
-// o  magenta -> yellow
+// o  magenta -> blue
+// o  blue -> teal
+// o  teal -> green
+// o  green -> yellow
 // o  yellow -> white
 //
 // Each transition takes 8 steps, which gives us 56 steps, but since each transition also shares a step with the
 // one before, I removed the duplicates (6 duplicates gives a total of 50 steps)
-//
-// TODO -- might want to store these in PROGMEM?
-const uint8_t reds[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
-const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
-const uint8_t blues[]  = {0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 7};
+const uint8_t reds[]   = {0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
+const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+const uint8_t blues[]  = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7};
+
+#define MAX_COLOR_IDX sizeof(reds) - 1
+
+volatile uint16_t _dialValue = 0;
+volatile uint8_t _red = 0;
+volatile uint8_t _green = 0;
+volatile uint8_t _blue = 0;
 
 void setup();
 void setupAdc();
@@ -44,8 +44,8 @@ int main(void) {
 }
 
 void onDialUpdate() {
-    // we should have 10 bits for the dial value (0 - 1023), and we need to get a number between 0 and 49
-    uint8_t stepNumber = (49 * _dialValue) / 1023;
+    // we should have 10 bits for the dial value (0 - 1023), and we need to get a number between 0 and MAX_COLOR_IDX
+    uint8_t stepNumber = (MAX_COLOR_IDX * _dialValue) / 1023;
 
     _red   = reds[stepNumber];
     _green = greens[stepNumber];
