@@ -14,17 +14,16 @@
 // o  blue -> teal
 // o  teal -> green
 // o  green -> yellow
-// o  yellow -> white
+// o  yellow -> orange
+// o  orange -> white
 //
-// Each transition takes 8 steps, which gives us 56 steps, but since each transition also shares a step with the
-// one before, I removed the duplicates (6 duplicates gives a total of 50 steps)
+// NOTE: Each transition shares a step (e.g. black -> red; red-> magenta, red is included twice), those duplicates have been removed.
 //
-// TODO -- maybe put the duplicate steps back in so that we stay longer on those main colors
-const uint8_t reds[]   = {0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7};
-const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
-const uint8_t blues[]  = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7};
+const uint8_t reds[]   = {0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+const uint8_t greens[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 5, 6, 7, 7, 7, 7, 7};
+const uint8_t blues[]  = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7};
 
-#define MAX_COLOR_IDX sizeof(reds) - 1
+#define MAX_COLOR_IDX (sizeof(reds) - 1)
 
 volatile uint8_t _red = 0;
 volatile uint8_t _green = 0;

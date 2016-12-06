@@ -30,6 +30,7 @@
         const red = Color(7, 0, 0)
         const magenta = Color(7, 0, 7)
         const yellow = Color(7, 7, 0)
+        const orange = Color(7, 4, 0)
         const white = Color(7, 7, 7)
 
         const chart1 = addChart(document.querySelector('body'), 'one')
@@ -37,7 +38,10 @@
 
         const chart2 = addChart(document.querySelector('body'), 'two')
         const colors2 = processTransitions([black, red, magenta, blue, teal, green, yellow, white], chartCb(chart2))
-        outputColorsForCode(colors2)
+
+        const chart3 = addChart(document.querySelector('body'), 'three')
+        const colors3 = processTransitions([black, red, magenta, blue, teal, green, yellow, orange, white], chartCb(chart3))
+        outputColorsForCode(colors3)
 
         function outputColorsForCode(colors) {
             const r = '\n\nconst uint8_t reds[] = {' + colors.map(x => x.r).join(', ') + '};'
