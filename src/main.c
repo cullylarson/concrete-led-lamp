@@ -112,7 +112,7 @@ void setupLedPwm() {
     TCCR1B |= (1 << WGM12);
 
     // Prescale 8
-    TCCR1B |= (1 << CS11); // TODO -- tweak this (would tweak in order to get a precise voltage range, for the LED driver)
+    TCCR1B |= (1 << CS11);
 
     OCR1A = 2047;
 
@@ -125,7 +125,7 @@ void setupLedPwm() {
     TCCR0B |= (1 << WGM01);
 
     // Prescale 8
-    TCCR0B |= (1 << CS01); // TODO -- tweak this (would tweak in order to get a precise voltage range, for the LED driver)
+    TCCR0B |= (1 << CS01);
 
     // counts 1/8 of the full cycle (it always needs to be 1/8 of the full cycle)
     OCR0A = 255;
@@ -173,7 +173,7 @@ ISR(TIM0_COMPA_vect) {
     // the count of timer 1 (the full cycle counter) is in TCNT1
     uint16_t counter = TCNT1; // store it, so that it's the same for all of the function calls below
 
-    // TODO -- how long does each of these calls take? if too long, then the blue step won't get its correct duty
+    // NOTE: how long does each of these calls take? if too long, then the blue step won't get its correct duty
     // I think we're good since the delay is at least consistent (i.e. we delayed turning on, and we'll also delay
     // turning off)
 
