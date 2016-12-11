@@ -39,6 +39,11 @@ uint8_t isPulseOn(uint8_t colorValue, uint16_t counterValue);
 int main(void) {
     setup();
 
+    // we're delaying turning on the twelve volt power (which powers the LED driver), until
+    // we're all set up, so that weird things don't happen (like the LEDs all flashing on for
+    // a split second)
+    turnTwelveVoltsOn();
+
     while(1) {
     }
 }

@@ -3,6 +3,10 @@
 #ifndef PINS_H
 #define PINS_H
 
+#define TWELVE_V_SWITCH         PA5
+#define TWELVE_V_SWITCH_PORT    PORTA
+#define TWELVE_V_SWITCH_DDR     DDRA
+
 #define LED_R       PB2
 #define LED_R_PORT  PORTB
 #define LED_R_DDR   DDRB
@@ -27,5 +31,6 @@
 #define READ(port, pn) (port & (1<<pn)) == 0
 
 void setupPins();
+void turnTwelveVoltsOn();
 
 #endif
